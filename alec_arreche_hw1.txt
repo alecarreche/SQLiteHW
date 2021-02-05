@@ -1,0 +1,67 @@
+-- Problem 1
+
+SELECT g.name, COUNT(*) AS num_tracks
+FROM genres AS g, tracks AS t
+WHERE t.GenreId = g.GenreId
+GROUP BY g.name; 
+
+-- Problem 2
+
+SELECT g.name, COUNT(DISTINCT(t.AlbumId)) AS num_albums
+FROM genres AS g, tracks AS t
+WHERE t.GenreId = g.GenreId
+GROUP BY g.name; 
+
+-- Problem 3 
+
+SELECT c.State AS state, SUM(i.Total) AS revenue
+FROM customers AS c, invoices AS i
+WHERE i.CustomerId = c.CustomerId
+GROUP BY c.State;
+
+-- this also works but does not join on customers
+
+SELECT BillingState AS state, SUM(Total) AS revenue
+FROM invoices
+GROUP BY BillingState;
+
+-- Problem 4 
+
+SELECT SUM(revenue) AS total_revenue
+FROM (
+    SELECT c.CustomerId AS customer, SUM(i.Total) as revenue
+    FROM customers AS c, invoices AS i
+    WHERE i.CustomerId = c.CustomerId
+    GROUP BY i.CustomerId
+    ORDER BY revenue DESC 
+    LIMIT 10
+);
+
+-- Problem 5 
+
+SELECT COUNT(t.TrackId) AS count 
+FROM tracks AS t
+WHERE t.TrackId NOT IN (
+    SELECT p.TrackId 
+    FROM playlist_track AS p
+);
+
+-- Problem 6
+
+WITH N AS 
+(
+    SELECT COUNT(*)
+    FROM genres 
+),
+
+sample(i, rand) AS 
+(
+    SELECT 0, ABS(RANDOM()) % (SELECT * FROM N)
+        UNION ALL 
+    SELECT i+1, ABS(RANDOM()) % (SELECT * FROM N)  FROM sample 
+    WHERE i < 29
+) 
+
+SELECT g.Name AS genre 
+FROM genres AS g, sample AS s
+WHERE g.GenreId = s.rand; 
